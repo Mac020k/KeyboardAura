@@ -111,6 +111,10 @@ pyinstaller --noconsole --onedir --icon=img/icon.ico --add-data "img/icon.ico:im
 
 3. 完了後、`dist/IMEAura/` に実行ファイルと依存ライブラリが生成されます。このフォルダ一式を配布してください。
 
+## GitHub リリースの自動作成
+
+`main` ブランチへプッシュするたびに、GitHub Actions が新しいプレリリースを作成します。リリースは `v1.0.0-build.<GitHub Actions の実行番号>` 形式の一意なタグで作成され、プッシュされたコミットを指します。
+
 ## ライセンス
 
 - **IME Aura（本プロジェクト）**: MIT License（`LICENSE` を参照）
