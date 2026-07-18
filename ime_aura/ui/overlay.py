@@ -36,6 +36,7 @@ class ImeOverlay(QWidget):
         self.display_mode = settings.display_mode
         self.show_on_hover = settings.show_on_hover
         self.ui_font_size = settings.ui_font_size
+        self.gradient_width = settings.gradient_width
         self._gradient_visible = self._should_show_gradient()
 
         self.is_japanese = self._backend.is_japanese_input()
@@ -86,6 +87,13 @@ class ImeOverlay(QWidget):
         self.ui_font_size = size_key if size_key in UI_FONT_SIZES else UI_FONT_SIZE_MEDIUM
         self._persist_settings()
 
+    def set_gradient_width(self, width: int) -> None:
+        from ime_aura.settings import _normalize_gradient_width
+
+        self.gradient_width = _normalize_gradient_width(width)
+        self._persist_settings()
+        self.update()
+
     def reset_colors_to_default(self) -> None:
         colors = default_colors()
         self.color_jp = colors.color_jp
@@ -100,6 +108,7 @@ class ImeOverlay(QWidget):
             display_mode=self.display_mode,
             show_on_hover=self.show_on_hover,
             ui_font_size=self.ui_font_size,
+            gradient_width=self.gradient_width,
         )
 
     def _persist_settings(self) -> None:
@@ -169,7 +178,7 @@ class ImeOverlay(QWidget):
 
         width = self.width()
         height = self.height()
-        thickness = 15
+        thickness = self.gradient_width
 
         grad_top = QLinearGradient(0, 0, 0, thickness)
         grad_top.setColorAt(0, base_color)

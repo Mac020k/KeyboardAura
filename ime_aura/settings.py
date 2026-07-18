@@ -15,6 +15,10 @@ logger = logging.getLogger(__name__)
 DEFAULT_COLOR_JP = QColor(248, 40, 70, 255)
 DEFAULT_COLOR_EN = QColor(45, 129, 253, 255)
 
+DEFAULT_GRADIENT_WIDTH = 15
+GRADIENT_WIDTH_MIN = 1
+GRADIENT_WIDTH_MAX = 100
+
 DISPLAY_MODE_ALWAYS = "always"
 DISPLAY_MODE_ON_FOCUS = "on_focus"
 DISPLAY_MODES = frozenset({DISPLAY_MODE_ALWAYS, DISPLAY_MODE_ON_FOCUS})
@@ -39,6 +43,7 @@ class AppSettings:
     display_mode: str
     show_on_hover: bool
     ui_font_size: str
+    gradient_width: int
 
 
 def default_settings() -> AppSettings:
@@ -48,6 +53,7 @@ def default_settings() -> AppSettings:
         display_mode=DISPLAY_MODE_ALWAYS,
         show_on_hover=False,
         ui_font_size=UI_FONT_SIZE_MEDIUM,
+        gradient_width=DEFAULT_GRADIENT_WIDTH,
     )
 
 
@@ -61,6 +67,7 @@ def default_colors() -> AppSettings:
         display_mode=current.display_mode,
         show_on_hover=current.show_on_hover,
         ui_font_size=current.ui_font_size,
+        gradient_width=current.gradient_width,
     )
 
 
@@ -106,6 +113,14 @@ def _normalize_ui_font_size(value: object) -> str:
     return UI_FONT_SIZE_MEDIUM
 
 
+def _normalize_gradient_width(value: object) -> int:
+    try:
+        width = int(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return DEFAULT_GRADIENT_WIDTH
+    return max(GRADIENT_WIDTH_MIN, min(GRADIENT_WIDTH_MAX, width))
+
+
 def ui_font_point_size(size_key: str) -> int:
     return UI_FONT_POINT_SIZES.get(
         _normalize_ui_font_size(size_key),
@@ -126,6 +141,9 @@ def _normalize_settings(data: dict) -> AppSettings:
         display_mode=display_mode,
         show_on_hover=show_on_hover,
         ui_font_size=_normalize_ui_font_size(data.get("ui_font_size")),
+        gradient_width=_normalize_gradient_width(
+            data.get("gradient_width", defaults.gradient_width)
+        ),
     )
 
 
@@ -152,6 +170,7 @@ def save_settings(settings: AppSettings) -> None:
     display_mode = _normalize_display_mode(settings.display_mode)
     show_on_hover = bool(settings.show_on_hover) and display_mode == DISPLAY_MODE_ON_FOCUS
     ui_font_size = _normalize_ui_font_size(settings.ui_font_size)
+    gradient_width = _normalize_gradient_width(settings.gradient_width)
     try:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         payload = {
@@ -160,6 +179,7 @@ def save_settings(settings: AppSettings) -> None:
             "display_mode": display_mode,
             "show_on_hover": show_on_hover,
             "ui_font_size": ui_font_size,
+            "gradient_width": gradient_width,
         }
         with open(path, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=2)
@@ -182,5 +202,6 @@ def save_colors(color_jp: QColor, color_en: QColor) -> None:
             display_mode=current.display_mode,
             show_on_hover=current.show_on_hover,
             ui_font_size=current.ui_font_size,
+            gradient_width=current.gradient_width,
         )
     )

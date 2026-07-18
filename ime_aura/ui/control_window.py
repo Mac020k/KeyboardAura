@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QFont
 from PySide6.QtWidgets import (
+    QAbstractSpinBox,
     QApplication,
     QButtonGroup,
     QCheckBox,
@@ -12,13 +14,18 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QRadioButton,
+    QSlider,
+    QSpinBox,
     QVBoxLayout,
     QWidget,
 )
 
 from ime_aura.settings import (
+    DEFAULT_GRADIENT_WIDTH,
     DISPLAY_MODE_ALWAYS,
     DISPLAY_MODE_ON_FOCUS,
+    GRADIENT_WIDTH_MAX,
+    GRADIENT_WIDTH_MIN,
     UI_FONT_SIZE_LARGE,
     UI_FONT_SIZE_MEDIUM,
     UI_FONT_SIZE_SMALL,
@@ -72,6 +79,25 @@ class ControlWindow(QWidget):
         reset_btn.clicked.connect(self.reset_colors)
         layout.addWidget(reset_btn)
 
+        width_layout = QHBoxLayout()
+        width_layout.addWidget(QLabel("グラデーションの幅:"))
+        self.width_slider = QSlider(Qt.Orientation.Horizontal)
+        self.width_slider.setRange(GRADIENT_WIDTH_MIN, GRADIENT_WIDTH_MAX)
+        self.width_slider.setMinimumWidth(120)
+        self.width_slider.setValue(self.overlay.gradient_width)
+        self.width_spin = QSpinBox()
+        self.width_spin.setRange(GRADIENT_WIDTH_MIN, GRADIENT_WIDTH_MAX)
+        self.width_spin.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.width_spin.setSuffix(" px")
+        self.width_spin.setValue(self.overlay.gradient_width)
+        width_layout.addWidget(self.width_slider, stretch=1)
+        width_layout.addWidget(self.width_spin)
+        layout.addLayout(width_layout)
+
+        reset_width_btn = QPushButton("デフォルトの幅に戻す")
+        reset_width_btn.clicked.connect(self.reset_gradient_width)
+        layout.addWidget(reset_width_btn)
+
         layout.addWidget(QLabel("グラデーション表示:"))
 
         self.radio_always = QRadioButton("常に表示")
@@ -109,6 +135,8 @@ class ControlWindow(QWidget):
         self.radio_font_small.toggled.connect(self._on_font_size_changed)
         self.radio_font_medium.toggled.connect(self._on_font_size_changed)
         self.radio_font_large.toggled.connect(self._on_font_size_changed)
+        self.width_slider.valueChanged.connect(self._on_width_slider_changed)
+        self.width_spin.valueChanged.connect(self._on_width_spin_changed)
 
         exit_btn = QPushButton("アプリケーションを終了")
         exit_btn.clicked.connect(QApplication.quit)
@@ -147,6 +175,30 @@ class ControlWindow(QWidget):
             size_key = UI_FONT_SIZE_MEDIUM
         self.overlay.set_ui_font_size(size_key)
         self._apply_ui_font_size(size_key)
+
+    def _set_width_controls(self, value: int) -> None:
+        self.width_slider.blockSignals(True)
+        self.width_spin.blockSignals(True)
+        self.width_slider.setValue(value)
+        self.width_spin.setValue(value)
+        self.width_slider.blockSignals(False)
+        self.width_spin.blockSignals(False)
+
+    def _on_width_slider_changed(self, value: int) -> None:
+        self.width_spin.blockSignals(True)
+        self.width_spin.setValue(value)
+        self.width_spin.blockSignals(False)
+        self.overlay.set_gradient_width(value)
+
+    def _on_width_spin_changed(self, value: int) -> None:
+        self.width_slider.blockSignals(True)
+        self.width_slider.setValue(value)
+        self.width_slider.blockSignals(False)
+        self.overlay.set_gradient_width(value)
+
+    def reset_gradient_width(self) -> None:
+        self.overlay.set_gradient_width(DEFAULT_GRADIENT_WIDTH)
+        self._set_width_controls(self.overlay.gradient_width)
 
     def _sync_hover_enabled(self) -> None:
         enabled = self.radio_on_focus.isChecked()
