@@ -1,3 +1,7 @@
-.af
+*.af
+*.pyc
+*.spec
+
 \build
-code.spec
+dist/
+__pycache__/
