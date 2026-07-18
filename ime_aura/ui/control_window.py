@@ -31,6 +31,7 @@ from ime_aura.settings import (
     UI_FONT_SIZE_SMALL,
     ui_font_point_size,
 )
+from ime_aura.ui.about_dialog import AboutDialog
 from ime_aura.ui.overlay import ImeOverlay
 
 
@@ -138,12 +139,19 @@ class ControlWindow(QWidget):
         self.width_slider.valueChanged.connect(self._on_width_slider_changed)
         self.width_spin.valueChanged.connect(self._on_width_spin_changed)
 
+        about_btn = QPushButton("バージョン情報")
+        about_btn.clicked.connect(self._show_about)
+        layout.addWidget(about_btn)
+
         exit_btn = QPushButton("アプリケーションを終了")
         exit_btn.clicked.connect(QApplication.quit)
         layout.addWidget(exit_btn)
 
         self.setLayout(layout)
         self._apply_ui_font_size(self.overlay.ui_font_size)
+
+    def _show_about(self) -> None:
+        AboutDialog(self).exec()
 
     def _apply_ui_font_size(self, size_key: str) -> None:
         font = QFont(self.font())

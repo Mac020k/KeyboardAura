@@ -21,12 +21,14 @@ IMEAura/
 │   │   └── linux.py
 │   └── ui/
 │       ├── overlay.py       # 縁グラデーション表示
-│       └── control_window.py
+│       ├── control_window.py
+│       └── about_dialog.py  # バージョン情報・ライセンス表記
 ├── img/
 │   ├── icon.png
 │   └── icon.ico
 ├── requirements.txt
 ├── LICENSE
+├── THIRD_PARTY_NOTICES.md   # 第三者ソフトウェア表記
 └── README.md
 ```
 
@@ -80,11 +82,12 @@ python -m ime_aura
 - **グラデーション表示**:
   - **常に表示** / **テキスト入力時のみ**（どちらか一方）
   - **テキストボックスへホバー時も表示**: 「テキスト入力時のみ」選択時だけ有効です
+- **バージョン情報**: ライセンスと第三者ソフトウェア表記を表示します。
 - **アプリケーションを終了**: アプリケーション全体を終了します。
 
 ## 実行ファイルの作成
 
-PyInstaller で単一実行ファイルにできます。
+PyInstaller でフォルダ形式（`--onedir`）の配布物を作成できます。LGPL ライブラリ（PySide6 / Qt）の差し替えに配慮し、単一ファイル（`--onefile`）ではなく `--onedir` を使用します。`LICENSE` と `THIRD_PARTY_NOTICES.md` も同梱されます。
 
 1. PyInstaller をインストールします。
 
@@ -97,17 +100,20 @@ pip install pyinstaller
 **Windows:**
 
 ```bash
-pyinstaller --noconsole --onefile --icon=img/icon.ico --add-data "img/icon.ico;img" -n IMEAura ime_aura/__main__.py
+pyinstaller --noconsole --onedir --icon=img/icon.ico --add-data "img/icon.ico;img" --add-data "LICENSE;." --add-data "THIRD_PARTY_NOTICES.md;." -n IMEAura ime_aura/__main__.py
 ```
 
 **macOS / Linux:**
 
 ```bash
-pyinstaller --noconsole --onefile --icon=img/icon.ico --add-data "img/icon.ico:img" -n IMEAura ime_aura/__main__.py
+pyinstaller --noconsole --onedir --icon=img/icon.ico --add-data "img/icon.ico:img" --add-data "LICENSE:." --add-data "THIRD_PARTY_NOTICES.md:." -n IMEAura ime_aura/__main__.py
 ```
 
-3. 完了後、`dist` フォルダに実行ファイルが生成されます。
+3. 完了後、`dist/IMEAura/` に実行ファイルと依存ライブラリが生成されます。このフォルダ一式を配布してください。
 
 ## ライセンス
 
-このプロジェクトのライセンスは `LICENSE` を参照してください。
+- **IME Aura（本プロジェクト）**: MIT License（`LICENSE` を参照）
+- **第三者ソフトウェア**: `THIRD_PARTY_NOTICES.md` を参照
+
+主な依存である PySide6 / Qt は、LGPL-3.0 / GPL-2.0 / GPL-3.0（または Qt 商用ライセンス）のもとで提供されます。アプリの「バージョン情報」からも同じ内容を確認できます。
