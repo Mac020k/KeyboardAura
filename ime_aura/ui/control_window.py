@@ -42,6 +42,10 @@ class ControlWindow(QWidget):
         en_layout.addWidget(self.en_btn)
         layout.addLayout(en_layout)
 
+        reset_btn = QPushButton("デフォルトの色に戻す")
+        reset_btn.clicked.connect(self.reset_colors)
+        layout.addWidget(reset_btn)
+
         exit_btn = QPushButton("アプリケーションを終了")
         exit_btn.clicked.connect(QApplication.quit)
         layout.addWidget(exit_btn)
@@ -75,6 +79,11 @@ class ControlWindow(QWidget):
         if color.isValid():
             self.overlay.set_color_en(color)
             self.update_btn_color(self.en_btn, color)
+
+    def reset_colors(self) -> None:
+        self.overlay.reset_colors_to_default()
+        self.update_btn_color(self.jp_btn, self.overlay.color_jp)
+        self.update_btn_color(self.en_btn, self.overlay.color_en)
 
     def closeEvent(self, event) -> None:
         QApplication.quit()

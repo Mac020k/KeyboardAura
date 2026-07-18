@@ -7,6 +7,7 @@ from PySide6.QtGui import QColor, QLinearGradient, QPainter
 from PySide6.QtWidgets import QApplication, QWidget
 
 from ime_aura.platform.base import PlatformBackend
+from ime_aura.settings import default_colors, load_colors, save_colors
 
 
 class ImeOverlay(QWidget):
@@ -22,8 +23,9 @@ class ImeOverlay(QWidget):
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        self.color_jp = QColor(248, 40, 70, 255)
-        self.color_en = QColor(45, 129, 253, 255)
+        colors = load_colors()
+        self.color_jp = colors.color_jp
+        self.color_en = colors.color_en
 
         self.is_japanese = self._backend.is_japanese_input()
 
@@ -40,11 +42,23 @@ class ImeOverlay(QWidget):
 
     def set_color_jp(self, color: QColor) -> None:
         self.color_jp = color
+        self._persist_colors()
         self.update()
 
     def set_color_en(self, color: QColor) -> None:
         self.color_en = color
+        self._persist_colors()
         self.update()
+
+    def reset_colors_to_default(self) -> None:
+        colors = default_colors()
+        self.color_jp = colors.color_jp
+        self.color_en = colors.color_en
+        self._persist_colors()
+        self.update()
+
+    def _persist_colors(self) -> None:
+        save_colors(self.color_jp, self.color_en)
 
     def check_state(self) -> None:
         app = QApplication.instance()
